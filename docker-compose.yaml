@@ -24,7 +24,7 @@ services:
       - weather-harvester-svc-pgdb-data:/var/lib/postgresql/data    
 
   weather-predictor-svc:
-    image: ghcr.io/rum-people-preseed/weather-predictor-svc:a1b3697220786240d75895e009b58893f959b89a
+    image: ghcr.io/rum-people-preseed/weather-predictor-svc:v0.0.1
     restart: unless-stopped  
     depends_on:
       - weather-harvester-svc:
