@@ -20,7 +20,7 @@ services:
       - POSTGRES_USER=weather-harvester-svc
       - POSTGRES_PASSWORD=weather-harvester-svc
       - POSTGRES_DB=weather-harvester-svc
-    volumes: 
+    volumes:
       - weather-harvester-svc-pgdb-data:/var/lib/postgresql/data    
 
   weather-predictor-svc:
@@ -29,53 +29,18 @@ services:
     depends_on:
       - weather-harvester-svc:
         condition: service_started
-      - weather-predictor-svc-pgdb:
-        condition: service_healthy
-
-  weather-predictor-svc-pgdb:
-    image: postgres:16.1-alpine3.19
-    restart: always
-    # ports:
-    #   - 5433:5432
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    environment:
-      - POSTGRES_USER=weather-predictor-svc
-      - POSTGRES_PASSWORD=weather-predictor-svc
-      - POSTGRES_DB=weather-predictor-svc
-    volumes: 
-      - weather-predictor-svc-pgdb-data:/var/lib/postgresql/data    
 
   telegram-weather-svc:
     image: ghcr.io/rum-people-preseed/weather-harvester-svc:<YOUR-COMMIT-HASH>
-    restart: unless-stopped 
+    restart: unless-stopped
+    environment:
+      - GEO_NAME_SERVICE_USERNAME=people_of_rum
+      - TELEGRAM_API_TOKEN=6931473703:AAF0oOQ9yXjGZoWN48a0bPV-TVIucN5EHFc
     depends_on:
       - weather-predictor-svc:
         condition: service_started
       - telegram-weather-svc-pgdb:
         condition: service_healthy
 
-  telegram-weather-svc-pgdb:
-    image: postgres:16.1-alpine3.19
-    restart: always
-    # ports:
-    #   - 5434:5432
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    environment:
-      - POSTGRES_USER=telegram-weather-svc
-      - POSTGRES_PASSWORD=telegram-weather-svc
-      - POSTGRES_DB=telegram-weather-svc
-    volumes: 
-      - telegram-weather-svc-pgdb-data:/var/lib/postgresql/data
-
 volumes:
   weather-harvester-svc-pgdb-data:
-  weather-predictor-svc-pgdb-data:
-  telegram-weather-svc-pgdb-data:
